@@ -7,7 +7,7 @@ def login_e_analizza():
     email = os.getenv('FP_EMAIL')
     password = os.getenv('FP_PASSWORD')
     
-    # Lista di possibili indirizzi API per il login (tentiamo varie versioni)
+    # Lista di possibili indirizzi API per il login
     login_urls = [
         "https://api.flippingpal.com/auth/login",
         "https://api.flippingpal.com/v1/auth/login",
@@ -25,7 +25,6 @@ def login_e_analizza():
     session = requests.Session()
     login_data = None
     
-    # Ciclo per provare i diversi URL finché uno non funziona
     for url in login_urls:
         try:
             print(f"Tentativo di login su: {url}")
@@ -43,7 +42,6 @@ def login_e_analizza():
         print("IMPOSSIBILE EFFETTUARE IL LOGIN: Controlla email/password nei Secrets.")
         return
 
-    # Se arriviamo qui, il login è andato bene
     token = "Bearer " + login_data.get('accessToken')
     user_id = login_data.get('user', {}).get('id')
     headers_auth = headers_base.copy()
@@ -57,7 +55,6 @@ def login_e_analizza():
         r = session.post(market_url, headers=headers_auth, json={"retailSellingRealms": realms, "retailBuyingRealms": realms, "userId": user_id}, timeout=600)
         data = r.json()
 
-        # Creazione HTML
         html = "<html><head><meta charset='utf-8'><style>body{font-family:sans-serif;background:#121212;color:white;padding:20px} .cat-box{border:1px solid #444;margin-bottom:20px;padding:15px;border-radius:8px} .buy{color:#4caf50} .sell{color:#f44336} table{width:100%} td{padding:5px}</style></head><body>"
         html += "<h1>Dashboard WoW - Ultimo Aggiornamento</h1>"
 
@@ -75,12 +72,20 @@ def login_e_analizza():
             sorted_srv = sorted({s: sum(p)/len(p) for s, p in srv_prices.items()}.items(), key=lambda x: x[1])
             
             html += f"<div class='cat-box'><h2>{cat}</h2><table><tr>"
-            html += "<td><b>Top Acquisto (Prezzo Basso)</b><br>"
+            html += "<td><b>Top Acquisto</b><br>"
             for s, p in sorted_srv[:10]: html += f"<span class='buy'>Server {s}</span>: {round(p/10000)}g<br>"
-            html += "</td><td><b>Top Vendita (Prezzo Alto)</b><br>"
+            html += "</td><td><b>Top Vendita</b><br>"
             for s, p in sorted_srv[-5:]: html += f"<span class='sell'>Server {s}</span>: {round(p/10000)}g<br>"
             html += "</td></tr></table></div>"
 
         html += "</body></html>"
         
-        with open("index.html", "w
+        with open("index.html", "w", encoding="utf-8") as f:
+            f.write(html)
+        print("SUCCESSO: File index.html generato!")
+
+    except Exception as e:
+        print(f"Errore durante l'analisi dati: {e}")
+
+if __name__ == "__main__":
+    login_e_analizza()
