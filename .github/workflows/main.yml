@@ -2,7 +2,7 @@ name: WoW Market Update
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 * * * *' # Si attiva da solo ogni ora
+    - cron: '0 * * * *'
 permissions:
   contents: write
   pages: write
@@ -18,14 +18,13 @@ jobs:
       - run: pip install requests
       - run: python script.py
         env:
-          # Qui colleghiamo i due cassetti separati che hai creato
           FP_EMAIL: ${{ secrets.FP_EMAIL }}
           FP_PASSWORD: ${{ secrets.FP_PASSWORD }}
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
-   with:
+        with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./
-       publish_branch: main # Cambiato da gh-pages a main
+          publish_branch: main
           force_modify_gitpass: true
          
