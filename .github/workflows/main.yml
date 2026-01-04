@@ -1,6 +1,8 @@
 name: WoW Market Update
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *' # Si attiva da solo ogni ora
 permissions:
   contents: write
   pages: write
@@ -15,6 +17,10 @@ jobs:
           python-version: '3.9'
       - run: pip install requests
       - run: python script.py
+        env:
+          # Qui colleghiamo i due cassetti separati che hai creato
+          FP_EMAIL: ${{ secrets.FP_EMAIL }}
+          FP_PASSWORD: ${{ secrets.FP_PASSWORD }}
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
